@@ -47,6 +47,11 @@
                         <flux:navlist.item icon="list-bullet" :href="route('admin.orders')" :current="request()->routeIs('admin.orders')" wire:navigate>
                             Alle Bestellungen
                         </flux:navlist.item>
+
+                        <!-- Analysebereich -->
+                        <flux:navlist.item icon="chart-pie" :href="route('admin.analyse')" :current="request()->routeIs('admin.analyse')" wire:navigate>
+                            Analyse
+                        </flux:navlist.item>
                     </flux:navlist.group>
                 @endcan
             </flux:navlist>

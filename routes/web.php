@@ -22,11 +22,12 @@ Route::middleware(['auth'])->group(function () {
 
 // Admin-Bereich: Nur für eingeloggte Admins
 Route::middleware(['auth', 'can:admin'])->group(function () {
-    Volt::route('/products', 'products.products')->name('products.products');
-    Volt::route('/create', 'products.create')->name('products.create');
-    Volt::route('/edit', 'products.edit')->name('products.edit');
-    Volt::route('/delete', 'products.delete')->name('products.delete');
+    Volt::route('/admin/products', 'admin.products.products')->name('products.products');
+    Volt::route('/admin/create', 'admin.products.create')->name('products.create');
+    Volt::route('/admin/edit', 'admin.products.edit')->name('products.edit');
+    Volt::route('/admin/delete', 'admin.products.delete')->name('products.delete');
     Volt::route('/admin/orders', 'admin.orders')->name('admin.orders');
+    Volt::route('/admin/analysis', 'admin.analyse')->name('admin.analyse');
 });
 
 Route::middleware(['auth'])->group(function () {

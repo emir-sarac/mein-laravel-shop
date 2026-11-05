@@ -116,12 +116,17 @@ new #[Layout('components.layouts.app')] class extends Component {
             <flux:checkbox wire:model="is_active" label="{{ __('Sichtbar im Shop') }}" name="is_active" />
 
             <div class="flex items-center gap-4">
-                <div class="flex items-center justify-end">
-                    <flux:button type="submit" class="w-full bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700">{{ __('Produkt erstellen') }}</flux:button>
+                <div class="flex items-center justify-between w-full gap-4">
+                <!-- Links: Erstellen-Button und Erfolgsmeldung -->
+                <div class="flex items-center gap-2">
+                    <flux:button type="submit" class="bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700">{{ __('Produkt erstellen') }}</flux:button>
+                    
+                    <!-- Erfolgsmeldung -->
+                    <x-action-message class="text-sm font-medium text-green-600 dark:text-green-400" on="product-created">{{ __('Erfolgreich erstellt!') }}</x-action-message>
                 </div>
 
-                <!-- Erfolgsmeldung -->
-                <x-action-message class="me-3 text-sm font-medium text-green-600 dark:text-green-400" on="product-created">{{ __('Erfolgreich erstellt!') }}</x-action-message>
+                <!-- Rechts: Abbrechen-Button (Ganz auf der rechten Seite) -->
+                <flux:button href="{{ route('products.products') }}" wire:navigate variant="ghost">{{ __('Abbrechen') }}</flux:button>
             </div>
         </form>
     </div>
