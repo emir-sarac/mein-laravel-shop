@@ -28,6 +28,6 @@ Ein moderner und einfacher Online-Shop, der auf dem Handy und am Computer gut au
    ```
 6. Server starten:
    ```bash
-   php artisan serve
+   php artisan serve --no-reload
    npm run dev
    ```
