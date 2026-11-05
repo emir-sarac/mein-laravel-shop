@@ -44,28 +44,6 @@ new #[Layout('components.layouts.app')] class extends Component {
             $this->openOrderIds[] = $orderId;
         }
     }
-
-    // Kunde storniert eigene Bestellung (Nur wenn Status = 1 / In Bearbeitung)
-    public function cancelOrder(int $orderId): void
-    {
-        $order = Auth::user()->orders()->find($orderId);
-        
-        if ($order && $order->status === 1) {
-            $order->update(['status' => 3]);
-            session()->flash('status', __('Bestellung wurde erfolgreich storniert.'));
-        }
-    }
-
-    // Kunde schließt eigene Bestellung ab (Bestätigung des Erhalts)
-    public function completeOrder(int $orderId): void
-    {
-        $order = Auth::user()->orders()->find($orderId);
-        
-        if ($order && $order->status === 1) {
-            $order->update(['status' => 2]);
-            session()->flash('status', __('Bestellung wurde erfolgreich abgeschlossen.'));
-        }
-    }
 };
 ?>
 
