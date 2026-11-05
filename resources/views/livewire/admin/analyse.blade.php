@@ -29,6 +29,7 @@ new #[Layout('components.layouts.app')] class extends Component {
             ->select('products.name', DB::raw('SUM(order_items.quantity) as total_quantity'), DB::raw('SUM(order_items.quantity * order_items.price) as total_revenue'))
             ->groupBy('products.id', 'products.name')
             ->orderByDesc('total_quantity')
+            ->orderByDesc('total_revenue')
             ->limit(3)
             ->get();
 
