@@ -7,6 +7,11 @@ use Illuminate\Support\Facades\Gate;
 
 new #[Layout('components.layouts.app')] class extends Component {
 
+    // Suche & Status-Filter
+    public string $search = '';
+    public string $searchBy = 'customer';
+    public string $status = '';
+
     // Sortierung standardmäßig nach neuestem Datum
     public string $sortBy = 'created_at';
     public string $sortDirection = 'desc';
@@ -28,6 +33,15 @@ new #[Layout('components.layouts.app')] class extends Component {
         return [
             'orders' => Order::query()
                 ->with(['items.product', 'user'])
+                ->when($this->status !== '', fn($q) => $q->where('status', $this->status))
+                ->when($this->search !== '', function ($q) {
+                    $term = '%' . $this->search . '%';
+                    match ($this->searchBy) {
+                        'customer' => $q->whereHas('user', fn($q) => $q->where('name', 'like', $term)),
+                        'product'  => $q->whereHas('items.product', fn($q) => $q->where('name', 'like', $term)),
+                        'order_id' => $q->where('id', 'like', '%' . ltrim($this->search, '#') . '%'),
+                    };
+                })
                 ->orderBy($this->sortBy, $this->sortDirection)
                 ->get()
         ];
@@ -97,23 +111,56 @@ new #[Layout('components.layouts.app')] class extends Component {
         </div>
     </div>
 
-    <!-- Sortierungs-Bar -->
-    <div class="flex items-center justify-end gap-2 text-sm bg-zinc-50 dark:bg-zinc-800/50 p-2 rounded-lg border border-zinc-200 dark:border-zinc-700/60 mb-6 max-w-3xl">
-        <span class="text-zinc-500 mr-2 font-medium text-xs uppercase tracking-wider">{{ __('Sortieren nach:') }}</span>
+    <!-- Filter- & Sortierungs-Bar -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-zinc-50 dark:bg-zinc-800/50 p-3 rounded-lg border border-zinc-200 dark:border-zinc-700/60 mb-6 max-w-3xl">
         
-        <flux:button size="sm" variant="ghost" wire:click="setSort('created_at')">
-            {{ __('Datum') }}
-            @if($sortBy === 'created_at')
-                <flux:icon name="{{ $sortDirection === 'desc' ? 'chevron-down' : 'chevron-up' }}" class="ml-1 h-3 w-3 inline" />
-            @endif
-        </flux:button>
+        <!-- 1. Suche (Dropdown + Eingabefeld) -->
+        <div class="flex items-center gap-2 flex-1">
+            <flux:select wire:model.live="searchBy" size="sm" class="w-36 shrink-0">
+                <flux:select.option value="customer">{{ __('Kunde') }}</flux:select.option>
+                <flux:select.option value="product">{{ __('Artikel') }}</flux:select.option>
+                <flux:select.option value="order_id">{{ __('Bestellnr.') }}</flux:select.option>
+            </flux:select>
 
-        <flux:button size="sm" variant="ghost" wire:click="setSort('id')">
-            {{ __('Bestellnummer') }}
-            @if($sortBy === 'id')
-                <flux:icon name="{{ $sortDirection === 'desc' ? 'chevron-down' : 'chevron-up' }}" class="ml-1 h-3 w-3 inline" />
-            @endif
-        </flux:button>
+            <flux:input 
+                wire:model.live.debounce.300ms="search" 
+                size="sm" 
+                icon="magnifying-glass" 
+                placeholder="{{ __('Suchen...') }}" 
+                clearable 
+                class="w-full"
+            />
+        </div>
+
+        <!-- Trennstrich -->
+        <div class="h-5 w-px bg-zinc-200 dark:bg-zinc-700 hidden sm:block"></div>
+
+        <!-- 2. Status-Filter & 3. Sortieren nach Datum -->
+        <div class="flex items-center justify-between md:justify-end gap-3 shrink-0">
+            
+            <!-- Status-Dropdown -->
+            <flux:select wire:model.live="status" size="sm" class="w-40">
+                <flux:select.option value="">{{ __('Alle Status') }}</flux:select.option>
+                <flux:select.option value="1">{{ __('In Bearbeitung') }}</flux:select.option>
+                <flux:select.option value="2">{{ __('Erledigt') }}</flux:select.option>
+                <flux:select.option value="3">{{ __('Storniert') }}</flux:select.option>
+            </flux:select>
+
+            <!-- Trennstrich -->
+            <div class="h-5 w-px bg-zinc-200 dark:bg-zinc-700 hidden sm:block"></div>
+
+            <!-- Sortieren nach Datum -->
+            <div class="flex items-center gap-1">
+                <span class="text-zinc-500 font-medium text-xs uppercase tracking-wider hidden sm:inline">{{ __('Sortieren nach:') }}</span>
+                <flux:button size="sm" variant="ghost" wire:click="setSort('created_at')">
+                    {{ __('Datum') }}
+                    @if($sortBy === 'created_at')
+                        <flux:icon name="{{ $sortDirection === 'desc' ? 'chevron-down' : 'chevron-up' }}" class="ml-1 h-3 w-3 inline" />
+                    @endif
+                </flux:button>
+            </div>
+
+        </div>
     </div>
 
     <!-- Bestellliste -->
